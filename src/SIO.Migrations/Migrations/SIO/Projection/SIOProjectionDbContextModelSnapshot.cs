@@ -21,18 +21,16 @@ namespace SIO.Migrations.Migrations.SIO.Projection
 
             modelBuilder.Entity("SIO.Domain.EventPublications.Projections.EventPublicationFailure", b =>
                 {
-                    b.Property<string>("Subject")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Error")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EventId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Subject")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Subject");
-
-                    b.HasIndex("EventId");
+                    b.HasKey("Id");
 
                     b.ToTable("EventPublicationFailure");
                 });
@@ -45,20 +43,8 @@ namespace SIO.Migrations.Migrations.SIO.Projection
                     b.Property<int>("Attempts")
                         .HasColumnType("int");
 
-                    b.Property<string>("CausationId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CorrelationId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Event")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StreamId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTimeOffset?>("PublicationDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Subject");
 

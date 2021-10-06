@@ -1,29 +1,15 @@
-﻿using SIO.Infrastructure;
+﻿using System;
 using SIO.Infrastructure.Events;
 
 namespace SIO.Domain.EventPublications.Events
 {
     public class EventPublicationQueued : Event
     {
-        public StreamId StreamId { get; set; }
-        public CorrelationId? CorrelationId { get; set; }
-        public CausationId? CausationId { get; set; }
-        public IEvent Event { get; set; }
-        public string Type { get; set; }
+        public DateTimeOffset? PublicationDate { get; }
 
-        public EventPublicationQueued(StreamId streamId,
-            CorrelationId? correlationId,
-            CausationId? causationId,
-            IEvent @event,
-            string type,
-            string subject,
-            int version) : base(subject, version)
+        public EventPublicationQueued(string subject, int version, DateTimeOffset? publicationDate) : base(subject, version)
         {
-            StreamId = streamId;
-            CorrelationId = correlationId;
-            CausationId = causationId;
-            Event = @event;
-            Type = type;
+            PublicationDate = publicationDate;
         }
     }
 }

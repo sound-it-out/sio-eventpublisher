@@ -52,15 +52,11 @@ namespace SIO.Domain.EventPublications.CommandHandlers
                 throw new ArgumentNullException(nameof(aggregate));
 
             aggregate.Queue(
-                streamId: StreamId.From(command.EventContext.StreamId),
-                correlationId: command.EventContext.CorrelationId,
-                causationId: command.EventContext.CausationId,
-                @event: command.EventContext.Payload,
-                type: command.EventContext.Payload.GetType().FullName,
-                subject: command.EventContext.Payload.Id
+                subject: command.Subject,
+                publicationDate: command.PublicationDate
             );
 
-            await _aggregateRepository.SaveAsync(aggregate, command, 0, cancellationToken);
+            await _aggregateRepository.SaveAsync(aggregate, command, cancellationToken: cancellationToken);
         }
     }
 }

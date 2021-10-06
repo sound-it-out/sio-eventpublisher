@@ -5,12 +5,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SIO.Domain.EventPublications.Events;
+using SIO.Infrastructure;
 using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.Projections;
 
 namespace SIO.Domain.EventPublications.Projections.Managers
 {
-    internal sealed class EventPublicationFailureProjectionManager : ProjectionManager<EventPublicationFailure>
+    public sealed class EventPublicationFailureProjectionManager : ProjectionManager<EventPublicationFailure>
     {
         private readonly IEnumerable<IProjectionWriter<EventPublicationFailure>> _projectionWriters;
         private readonly ISIOProjectionDbContextFactory _projectionDbContextFactory;
@@ -35,9 +36,9 @@ namespace SIO.Domain.EventPublications.Projections.Managers
                 cancellationToken.ThrowIfCancellationRequested();
             }
 
-            await Task.WhenAll(_projectionWriters.Select(pw => pw.AddAsync(@event.Id, () => new EventPublicationFailure
+            await Task.WhenAll(_projectionWriters.Select(pw => pw.AddAsync(@event.Subject, () => new EventPublicationFailure
             {
-                EventId = @event.Id,
+                Id = Subject.New(),
                 Error = @event.Error,
                 Subject = @event.Subject
             }, cancellationToken)));

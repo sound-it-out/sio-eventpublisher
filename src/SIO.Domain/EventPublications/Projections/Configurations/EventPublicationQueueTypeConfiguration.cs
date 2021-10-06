@@ -13,8 +13,6 @@ namespace SIO.Domain.EventPublications.Projections.Configurations
             builder.HasKey(epq => epq.Subject);
             builder.Property(epq => epq.Subject)
                    .ValueGeneratedNever();
-            builder.Property(epq => epq.Event)
-                .HasJsonValueConversion();
         }
     }
 }

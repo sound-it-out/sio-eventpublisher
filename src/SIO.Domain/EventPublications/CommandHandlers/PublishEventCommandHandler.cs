@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SIO.Domain.EventPublications.Aggregates;
 using SIO.Domain.EventPublications.Commands;
+using SIO.Infrastructure;
 using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Domain;
 using SIO.Infrastructure.Events;
@@ -18,10 +19,12 @@ namespace SIO.Domain.EventPublications.CommandHandlers
         private readonly ILogger<PublishEventCommandHandler> _logger;
         private readonly IAggregateRepository _aggregateRepository;
         private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly IEventStore _eventStore;
 
         public PublishEventCommandHandler(ILogger<PublishEventCommandHandler> logger,
             IAggregateRepository aggregateRepository,
-            IEventBusPublisher eventBusPublisher)
+            IEventBusPublisher eventBusPublisher,
+            IEventStore eventStore)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -29,10 +32,13 @@ namespace SIO.Domain.EventPublications.CommandHandlers
                 throw new ArgumentNullException(nameof(aggregateRepository));
             if (eventBusPublisher == null)
                 throw new ArgumentNullException(nameof(eventBusPublisher));
+            if (eventStore == null)
+                throw new ArgumentNullException(nameof(eventStore));
 
             _logger = logger;
             _aggregateRepository = aggregateRepository;
             _eventBusPublisher = eventBusPublisher;
+            _eventStore = eventStore;
         }
 
         public async Task ExecuteAsync(PublishEventCommand command, CancellationToken cancellationToken = default)
@@ -50,13 +56,17 @@ namespace SIO.Domain.EventPublications.CommandHandlers
 
             try
             {
-                var aggregateState = aggregate.GetState();
+                // Event has been published but we are ahead of projections!
+                if (aggregate.GetState().Status == EventPublicationStatus.Succeeded)
+                    return;
+
+                var eventContext = await _eventStore.GetEventAsync(Subject.From(aggregate.Id), cancellationToken);
 
                 var notification = new EventNotification<IEvent>(streamId: aggregate.Id,
-                    @event: aggregateState.Event,
-                    correlationId: aggregateState.CorrelationId,
-                    causationId: aggregateState.CausationId,
-                    timestamp: aggregateState.Event.Timestamp,
+                    @event: eventContext.Payload,
+                    correlationId: eventContext.CorrelationId,
+                    causationId: eventContext.CausationId,
+                    timestamp: eventContext.Payload.Timestamp,
                     userId: command.Actor);
 
                 await _eventBusPublisher.PublishAsync(notification, cancellationToken);
@@ -68,7 +78,7 @@ namespace SIO.Domain.EventPublications.CommandHandlers
                 aggregate.Fail(ex.Message);
             }
 
-            await _aggregateRepository.SaveAsync(aggregate, command, aggregate.Version - 1, cancellationToken);
+            await _aggregateRepository.SaveAsync(aggregate, command, aggregate.Version, cancellationToken);
         }
     }
 }

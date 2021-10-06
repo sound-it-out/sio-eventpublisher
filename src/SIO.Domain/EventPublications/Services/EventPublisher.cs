@@ -105,7 +105,7 @@ namespace SIO.Domain.EventPublications.Services
                             .AsQueryable()
                             .Where(epq => !epq.PublicationDate.HasValue || epq.PublicationDate <= DateTimeOffset.UtcNow)
                             .Take(50)
-                            .Select(epq => epq.StreamId)
+                            .Select(epq => epq.Subject)
                             .ToArrayAsync();
 
                         var correlationId = CorrelationId.New();

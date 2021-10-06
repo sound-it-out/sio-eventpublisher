@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +27,7 @@ namespace SIO.Domain.EventPublications.Services
         private readonly ISIOProjectionDbContextFactory _projectionDbContextFactory;
         private readonly string _name;
         private readonly ICommandDispatcher _commandDispatcher;
+        private readonly HashSet<string> _eventsToProcess;
 
         public EventProcessor(IServiceScopeFactory serviceScopeFactory,
             ILogger<EventProcessor> logger)
@@ -42,6 +45,7 @@ namespace SIO.Domain.EventPublications.Services
             _commandDispatcher = _scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
 
             _name = typeof(EventProcessor).FullName;
+            _eventsToProcess = new HashSet<string>(EventHelper.PublicationEvents.Select(t => t.FullName));
         }
 
         public Task StartAsync(CancellationToken cancellationToken = default)
@@ -107,7 +111,7 @@ namespace SIO.Domain.EventPublications.Services
                     {
                         Name = _name,
                         CreatedDate = DateTimeOffset.UtcNow,
-                        Position = 0
+                        Position = 1
                     };
 
                     context.ProjectionStates.Add(state);
@@ -123,14 +127,14 @@ namespace SIO.Domain.EventPublications.Services
 
                         var page = await _eventStore.GetEventsAsync(state.Position);
                         var correlationId = CorrelationId.New();
-                        foreach (var @event in page.Events)
+                        foreach (var @event in page.Events.Where(e => _eventsToProcess.Contains(e.Payload.GetType().FullName)))
                         {
                             await _commandDispatcher.DispatchAsync(new QueueEventPublicationCommand(
-                                eventContext: @event,
-                                subject: Subject.New(),
+                                subject: @event.Payload.Id,
                                 correlationId: correlationId,
                                 version: 0,
-                                Actor.Unknown
+                                Actor.Unknown,
+                                @event.ScheduledPublication
                             ));
                         }                            
 

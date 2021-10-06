@@ -34,10 +34,10 @@ namespace SIO.EventPublisher.Extensions
                     })
                     .AddCommands()
                     .AddAzureServiceBus(o => {
-                        o.UseConnection(configuration.GetValue<string>("AzureServiceBus"));
-                        o.UseTopic(t =>
+                        o.UseConnection(configuration.GetConnectionString("AzureServiceBus"));
+                        o.UseTopic(e =>
                         {
-                            t.WithName("generic");
+                            e.WithName(configuration.GetValue<string>("Azure:ServiceBus:Topic"));
                         });
                     })
                     .AddJsonSerializers();

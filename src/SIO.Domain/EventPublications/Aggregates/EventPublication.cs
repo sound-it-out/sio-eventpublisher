@@ -1,7 +1,6 @@
-﻿using SIO.Domain.EventPublications.Events;
-using SIO.Infrastructure;
+﻿using System;
+using SIO.Domain.EventPublications.Events;
 using SIO.Infrastructure.Domain;
-using SIO.Infrastructure.Events;
 
 namespace SIO.Domain.EventPublications.Aggregates
 {
@@ -16,21 +15,13 @@ namespace SIO.Domain.EventPublications.Aggregates
 
         public override EventPublicationState GetState() => new EventPublicationState(_state);
 
-        public void Queue(StreamId streamId,
-            CorrelationId? correlationId,
-            CausationId? causationId,
-            IEvent @event,
-            string type,
-            string subject)
+        public void Queue(string subject,
+            DateTimeOffset? publicationDate)
         {
             Apply(new EventPublicationQueued(
-                streamId: streamId,
-                correlationId: correlationId,
-                causationId: causationId,
-                @event: @event,
-                type: type,
                 subject: subject,
-                version: Version++
+                version: Version + 1,
+                publicationDate: publicationDate
             ));
         }
 
@@ -38,40 +29,40 @@ namespace SIO.Domain.EventPublications.Aggregates
         {
             Apply(new EventPublicationFailed(
                 error: error,
-                subject: _state.Subject,
-                version: Version++
+                subject: Id,
+                version: Version + 1
             ));
         }
 
         public void Succeed()
         {
             Apply(new EventPublicationSucceded(
-                subject: _state.Subject,
-                version: Version++
+                subject: Id,
+                version: Version + 1
             ));
         }
 
         private void Handle(EventPublicationQueued @event)
         {
-            Id = @event.StreamId;
-            _state.Subject = Subject.From(@event.Subject);
-            _state.CorrelationId = @event.CorrelationId;
-            _state.CausationId = @event.CausationId;
-            _state.Event = @event.Event;
-            _state.Type = @event.Type;
+            Id = @event.Subject;
+            _state.PublicationDate = @event.PublicationDate;
             _state.Attempts = 0;
             _state.Status = EventPublicationStatus.Queued;
+            Version = @event.Version;
         }
 
         private void Handle(EventPublicationFailed @event)
         {
             _state.Attempts++;
             _state.Status = EventPublicationStatus.Failed;
+            Version = @event.Version;
         }
 
         private void Handle(EventPublicationSucceded @event)
         {
+            _state.Attempts++;
             _state.Status = EventPublicationStatus.Succeeded;
+            Version = @event.Version;
         }
     }
 }

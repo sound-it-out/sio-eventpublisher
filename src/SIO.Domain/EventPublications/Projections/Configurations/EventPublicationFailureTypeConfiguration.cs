@@ -9,10 +9,9 @@ namespace SIO.Domain.EventPublications.Projections.Configurations
         public void Configure(EntityTypeBuilder<EventPublicationFailure> builder)
         {
             builder.ToTable(nameof(EventPublicationFailure));
-            builder.HasKey(epf => epf.Subject);
-            builder.Property(epf => epf.Subject)
+            builder.HasKey(epf => epf.Id);
+            builder.Property(epf => epf.Id)
                    .ValueGeneratedNever();
-            builder.HasIndex(epf => epf.EventId);
         }
     }
 }

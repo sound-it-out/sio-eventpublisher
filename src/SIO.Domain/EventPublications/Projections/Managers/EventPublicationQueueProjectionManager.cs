@@ -7,12 +7,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SIO.Domain.EventPublications.Events;
 using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
-using SIO.Infrastructure.Events;
 using SIO.Infrastructure.Projections;
 
 namespace SIO.Domain.EventPublications.Projections.Managers
 {
-    internal sealed class EventPublicationQueueProjectionManager : ProjectionManager<EventPublicationQueue>
+    public sealed class EventPublicationQueueProjectionManager : ProjectionManager<EventPublicationQueue>
     {
         private readonly IEnumerable<IProjectionWriter<EventPublicationQueue>> _projectionWriters;
         private readonly ISIOProjectionDbContextFactory _projectionDbContextFactory;
@@ -47,15 +46,11 @@ namespace SIO.Domain.EventPublications.Projections.Managers
                 cancellationToken.ThrowIfCancellationRequested();
             }
 
-            await Task.WhenAll(_projectionWriters.Select(pw => pw.AddAsync(@event.Event.Id, () => new EventPublicationQueue
+            await Task.WhenAll(_projectionWriters.Select(pw => pw.AddAsync(@event.Subject, () => new EventPublicationQueue
             {
                 Attempts = 0,
-                CausationId = @event.CausationId,
-                CorrelationId = @event.CorrelationId,
-                Event = @event.Event,
-                StreamId = @event.StreamId,
-                Subject = @event.Event.Id,
-                Type = @event.Type
+                Subject = @event.Subject,
+                PublicationDate = @event.PublicationDate
             }, cancellationToken)));
         }
 
@@ -69,14 +64,14 @@ namespace SIO.Domain.EventPublications.Projections.Managers
 
             using (var context = _projectionDbContextFactory.Create())
             {
-                var email = await context.Set<EventPublicationQueue>().FindAsync(@event.Id);
-                if (email.Attempts == _eventPublicationOptions.MaxRetries)
+                var eventPublication = await context.Set<EventPublicationQueue>().FindAsync(@event.Subject);
+                if (eventPublication.Attempts == _eventPublicationOptions.MaxRetries)
                 {
-                    await Task.WhenAll(_projectionWriters.Select(pw => pw.RemoveAsync(@event.Id)));
+                    await Task.WhenAll(_projectionWriters.Select(pw => pw.RemoveAsync(@event.Subject)));
                 }
                 else
                 {
-                    await Task.WhenAll(_projectionWriters.Select(pw => pw.UpdateAsync(@event.Id, epq =>
+                    await Task.WhenAll(_projectionWriters.Select(pw => pw.UpdateAsync(@event.Subject, epq =>
                     {
                         epq.Attempts++;
                     })));
@@ -92,7 +87,7 @@ namespace SIO.Domain.EventPublications.Projections.Managers
                 cancellationToken.ThrowIfCancellationRequested();
             }
 
-            await Task.WhenAll(_projectionWriters.Select(pw => pw.RemoveAsync(@event.Id)));
+            await Task.WhenAll(_projectionWriters.Select(pw => pw.RemoveAsync(@event.Subject)));
         }
 
         public override async Task ResetAsync(CancellationToken cancellationToken = default)

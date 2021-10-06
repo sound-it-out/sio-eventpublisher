@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using SIO.Domain.Documents.Events;
 using SIO.Domain.EventPublications.Events;
 using SIO.Domain.Translations.Events;
-using SIO.Domain.User.Events;
-
+using SIO.Domain.Users.Events;
+[assembly: InternalsVisibleTo("SIO.Domain.Tests")]
 namespace SIO.Domain
 {
     public static class EventHelper

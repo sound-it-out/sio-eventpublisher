@@ -11,13 +11,13 @@ namespace SIO.Migrations.Migrations.SIO.Projection
                 name: "EventPublicationFailure",
                 columns: table => new
                 {
-                    Subject = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    EventId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Error = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventPublicationFailure", x => x.Subject);
+                    table.PrimaryKey("PK_EventPublicationFailure", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -25,12 +25,8 @@ namespace SIO.Migrations.Migrations.SIO.Projection
                 columns: table => new
                 {
                     Subject = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    StreamId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CorrelationId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CausationId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Event = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Attempts = table.Column<int>(type: "int", nullable: false)
+                    Attempts = table.Column<int>(type: "int", nullable: false),
+                    PublicationDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -50,11 +46,6 @@ namespace SIO.Migrations.Migrations.SIO.Projection
                 {
                     table.PrimaryKey("PK_ProjectionState", x => x.Name);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventPublicationFailure_EventId",
-                table: "EventPublicationFailure",
-                column: "EventId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
