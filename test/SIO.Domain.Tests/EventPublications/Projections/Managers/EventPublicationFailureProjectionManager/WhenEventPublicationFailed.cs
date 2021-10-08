@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Shouldly;
 using SIO.Domain.EventPublications.Events;
 using SIO.Domain.EventPublications.Projections;
@@ -14,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicationFailureProjectionManager
 {
-    public sealed class WhenEventPublicationFailed : ProjectionManagerSpecification<SIO.Domain.EventPublications.Projections.Managers.EventPublicationFailureProjectionManager, EventPublicationFailure>
+    public sealed class WhenEventPublicationFailed : ProjectionManagerSpecification<EventPublicationFailure>
     {
         private readonly Subject _subject = Subject.New();
         private readonly string _error = "error";
@@ -22,6 +19,8 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
         public WhenEventPublicationFailed(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }
+
+        protected override Type ProjectionManager() => typeof(SIO.Domain.EventPublications.Projections.Managers.EventPublicationFailureProjectionManager);
 
         protected override IEnumerable<IEvent> Given()
         {
@@ -38,6 +37,6 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
         public void ShouldHaveEventPublicationQueueWithExpectedSubject()
         {
             Projection.Subject.ShouldBe(_subject);
-        }
+        }        
     }
 }

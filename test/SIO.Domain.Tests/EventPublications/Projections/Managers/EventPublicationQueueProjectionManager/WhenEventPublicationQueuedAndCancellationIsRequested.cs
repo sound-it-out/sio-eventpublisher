@@ -1,34 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Moq;
 using Shouldly;
 using SIO.Domain.EventPublications;
 using SIO.Domain.EventPublications.Events;
 using SIO.Domain.EventPublications.Projections;
 using SIO.Infrastructure;
 using SIO.Infrastructure.Events;
+using SIO.Infrastructure.Projections;
 using SIO.Infrastructure.Testing.Abstractions;
 using SIO.Infrastructure.Testing.Attributes;
 using Xunit.Abstractions;
 
 namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicationQueueProjectionManager
 {
-    public sealed class WhenEventPublicationQueued : ProjectionManagerSpecification<EventPublicationQueue>
+    public sealed class WhenEventPublicationQueuedAndCancellationIsRequested : ProjectionManagerSpecification<EventPublicationQueue>
     {
+        private readonly Mock<IProjectionWriter<EventPublicationFailure>> _mockProjectionWriter = new();
         private readonly Subject _subject = Subject.New();
         private readonly DateTimeOffset _publicationDate = DateTimeOffset.UtcNow;
 
-        public WhenEventPublicationQueued(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        public WhenEventPublicationQueuedAndCancellationIsRequested(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }
 
         protected override Type ProjectionManager() => typeof(SIO.Domain.EventPublications.Projections.Managers.EventPublicationQueueProjectionManager);
 
+        protected override sealed void When()
+        {
+            RecordExceptions();
+            _cancellationTokenSource.Cancel();
+        }
+
         protected override void BuildServices(IServiceCollection services)
         {
+            services.RemoveAll<IProjectionWriter<EventPublicationFailure>>();
+            services.AddSingleton(_mockProjectionWriter.Object);
+
             services.Configure<EventPublicationOptions>(o =>
             {
-                o.MaxRetries = 0;
+                o.MaxRetries = 1;
             });
         }
 
@@ -38,21 +51,22 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
         }
 
         [Then]
-        public void ShouldHaveEventPublicationQueueWithExpectedAttempts()
+        public void ShouldHaveNullProjection()
         {
-            Projection.Attempts.ShouldBe(0);
+            Projection.ShouldBeNull();
         }
 
         [Then]
-        public void ShouldHaveEventPublicationQueueWithExpectedPublicationDate()
+        public void ShouldHaveOperationCanceledExceptionThrown()
         {
-            Projection.PublicationDate.ShouldBe(_publicationDate);
+            Exception.ShouldNotBeNull();
+            Exception.ShouldBeOfType<OperationCanceledException>();
         }
 
         [Then]
-        public void ShouldHaveEventPublicationQueueWithExpectedSubject()
+        public void ShouldHaltExecution()
         {
-            Projection.Subject.ShouldBe(_subject);
+            _mockProjectionWriter.Invocations.Count.ShouldBe(0);
         }
     }
 }

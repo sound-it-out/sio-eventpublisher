@@ -46,7 +46,12 @@ namespace SIO.Domain.EventPublications.CommandHandlers
                 cancellationToken.ThrowIfCancellationRequested();
             }
 
-            var aggregate = _aggregateFactory.FromHistory<EventPublication, EventPublicationState>(Enumerable.Empty<IEvent>());
+            var aggregate = await _aggregateRepository.GetAsync<EventPublication, EventPublicationState>(command.Subject, cancellationToken);
+
+            if (aggregate != null)
+                return;
+
+            aggregate = _aggregateFactory.FromHistory<EventPublication, EventPublicationState>(Enumerable.Empty<IEvent>());
 
             if (aggregate == null)
                 throw new ArgumentNullException(nameof(aggregate));

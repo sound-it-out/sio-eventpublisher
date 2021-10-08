@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicationQueueProjectionManager
 {
-    public sealed class WhenEventPublicationFailed : ProjectionManagerSpecification<SIO.Domain.EventPublications.Projections.Managers.EventPublicationQueueProjectionManager, EventPublicationQueue>
+    public sealed class WhenEventPublicationFailed : ProjectionManagerSpecification<EventPublicationQueue>
     {
         private readonly Subject _subject = Subject.New();
         private readonly DateTimeOffset _publicationDate = DateTimeOffset.UtcNow;
@@ -22,6 +22,8 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
         public WhenEventPublicationFailed(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }
+
+        protected override Type ProjectionManager() => typeof(SIO.Domain.EventPublications.Projections.Managers.EventPublicationQueueProjectionManager);
 
         protected override void BuildServices(IServiceCollection services)
         {

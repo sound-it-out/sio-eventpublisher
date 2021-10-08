@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -78,7 +75,7 @@ namespace SIO.Domain.EventPublications.CommandHandlers
                 aggregate.Fail(ex.Message);
             }
 
-            await _aggregateRepository.SaveAsync(aggregate, command, aggregate.Version, cancellationToken);
+            await _aggregateRepository.SaveAsync(aggregate, command, aggregate.Version - 1, cancellationToken);
         }
     }
 }
