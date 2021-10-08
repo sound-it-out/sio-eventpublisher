@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  sio.eventpublisher:
+    image: ${DOCKER_REGISTRY-}sioeventpublisher
+    build:
+      context: .
+      dockerfile: src/SIO.EventPublisher/Dockerfile
+    depends_on: 
+      - sio.eventpublisher.sql.projections
+  sio.eventpublisher.sql.projections:
+    image: "microsoft/mssql-server-linux"
+    container_name: sio.eventpublisher.sql.projections
+networks:    
+  default:
+    external:
+        name: sio.network
