@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SIO.Domain;
 using SIO.Domain.EventPublications.Projections;
+using SIO.Domain.Extensions;
 using SIO.EntityFrameworkCore.Projections;
 using SIO.Infrastructure;
 using SIO.Infrastructure.Azure.ServiceBus.Extensions;
@@ -25,32 +26,17 @@ namespace SIO.EventPublisher.Extensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services
-                .AddSIOInfrastructure()
-                    .AddEntityFrameworkCoreSqlServer(options =>
-                    {
-                        options.AddStore(configuration.GetConnectionString("Store"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
-                        options.AddProjections(configuration.GetConnectionString("Projection"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
-                    })
-                    .AddEntityFrameworkCoreStoreProjector(options =>
-                    {
-                        options.WithProjection<EventPublicationQueue>(o => o.Interval = 2000);
-                        options.WithProjection<EventPublicationFailure>(o => o.Interval = 5000);
-                    })
-                    .AddEvents(o =>
-                    {
-                        o.Register(EventHelper.AllEvents);
-                    })
-                    .AddCommands()
-                    .AddAzureServiceBus(o =>
-                    {
-                        o.UseConnection(configuration.GetConnectionString("AzureServiceBus"));
-                        o.UseTopic(e =>
-                        {
-                            e.WithName(configuration.GetValue<string>("Azure:ServiceBus:Topic"));
-                        });
-                    })
-                    .AddJsonSerializers();
+            services.AddSIOInfrastructure()
+                .AddEntityFrameworkCoreSqlServer(options =>
+                {
+                    options.AddStore(configuration.GetConnectionString("Store"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
+                    options.AddProjections(configuration.GetConnectionString("Projection"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
+                })
+                .AddEntityFrameworkCoreStoreProjector(options => options.WithDomainProjections())
+                .AddEvents(o => o.Register(EventHelper.AllEvents))
+                .AddCommands()
+                .AddEventBus(configuration)
+                .AddJsonSerializers();
 
             return services;
         }

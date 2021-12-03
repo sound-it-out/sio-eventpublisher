@@ -17,7 +17,10 @@ namespace SIO.EventPublisher
             var env = host.Services.GetRequiredService<IHostEnvironment>();
 
             if (env.IsDevelopment())
+            {
                 await host.RunProjectionMigrationsAsync();
+                await host.RunStoreMigrationsAsync();
+            }                
 
             await host.RunAsync();
         }

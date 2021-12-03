@@ -17,8 +17,6 @@ namespace SIO.Domain.Extensions
         {
             services.AddScoped<ICommandHandler<QueueEventPublicationCommand>, QueueEventPublicationCommandHandler>();
             services.AddScoped<ICommandHandler<PublishEventCommand>, PublishEventCommandHandler>();
-            services.AddScoped<IProjectionManager<EventPublicationFailure>, EventPublicationFailureProjectionManager>();
-            services.AddScoped<IProjectionManager<EventPublicationQueue>, EventPublicationQueueProjectionManager>();
             services.AddHostedService<EventProcessor>();
             services.AddHostedService<EventPublisher>();
             services.Configure<EventProcessorOptions>(o => o.Interval = 300);

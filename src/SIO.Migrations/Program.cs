@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,7 +14,11 @@ namespace SIO.Migrations
         // EF Core uses this method at design time to access the DbContext
         public static IHostBuilder CreateHostBuilder(string[] args)
             => Host.CreateDefaultBuilder(args)
-                .ConfigureServices(services => services.AddTransient<IDesignTimeDbContextFactory<SIOProjectionDbContext>, SIOProjectionDbContextFactory>()
+                .ConfigureServices(services =>
+                {
+                    services.AddTransient<IDesignTimeDbContextFactory<SIOProjectionDbContext>, SIOProjectionDbContextFactory>();
+                    services.AddTransient<IDesignTimeDbContextFactory<SIOStoreDbContext>, SIOStoreDbContextFactory>();
+                }
             );
     }
 
@@ -31,6 +30,17 @@ namespace SIO.Migrations
             optionsBuilder.UseSqlServer("Server=.,1450;Initial Catalog=sio-api-projections;User Id=sa;Password=1qaz-pl,", b => b.MigrationsAssembly("SIO.Migrations"));
 
             return new SIOProjectionDbContext(optionsBuilder.Options);
+        }
+    }
+
+    internal class SIOStoreDbContextFactory : IDesignTimeDbContextFactory<SIOStoreDbContext>
+    {
+        public SIOStoreDbContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<SIOStoreDbContext>();
+            optionsBuilder.UseSqlServer("Server=.,1445;Initial Catalog=sio.sql.store;User Id=sa;Password=1qaz-pl,", b => b.MigrationsAssembly("SIO.Migrations"));
+
+            return new SIOStoreDbContext(optionsBuilder.Options);
         }
     }
 }

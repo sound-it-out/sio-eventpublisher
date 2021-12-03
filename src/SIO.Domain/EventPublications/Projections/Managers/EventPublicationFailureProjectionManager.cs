@@ -15,7 +15,6 @@ namespace SIO.Domain.EventPublications.Projections.Managers
     {
         private readonly IEnumerable<IProjectionWriter<EventPublicationFailure>> _projectionWriters;
         private readonly ISIOProjectionDbContextFactory _projectionDbContextFactory;
-        private readonly EventPublicationOptions _eventPublicationOptions;
 
         public EventPublicationFailureProjectionManager(ILogger<ProjectionManager<EventPublicationFailure>> logger,
             IEnumerable<IProjectionWriter<EventPublicationFailure>> projectionWriters) : base(logger)
