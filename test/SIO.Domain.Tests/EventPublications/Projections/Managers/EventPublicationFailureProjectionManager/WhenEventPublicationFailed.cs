@@ -14,6 +14,7 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
     public sealed class WhenEventPublicationFailed : ProjectionManagerSpecification<EventPublicationFailure>
     {
         private readonly Subject _subject = Subject.New();
+        private readonly Subject _eventSubject = Subject.New();
         private readonly string _error = "error";
 
         public WhenEventPublicationFailed(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
@@ -24,7 +25,7 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
 
         protected override IEnumerable<IEvent> Given()
         {
-            yield return new EventPublicationFailed(_error, _subject, 2);
+            yield return new EventPublicationFailed(_error, _subject, 2, _eventSubject);
         }
 
         [Then]

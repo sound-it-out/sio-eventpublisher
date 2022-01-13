@@ -8,6 +8,7 @@ namespace SIO.Domain.EventPublications.Aggregates
         public int Attempts { get; set; }
         public EventPublicationStatus Status {  get; set; }
         public DateTimeOffset? PublicationDate { get; set; }
+        public string EventSubject { get; set; }
 
         public EventPublicationState() { }
         public EventPublicationState(EventPublicationState state)
@@ -18,6 +19,7 @@ namespace SIO.Domain.EventPublications.Aggregates
             Attempts = state.Attempts;
             Status = state.Status;
             PublicationDate = state.PublicationDate;
+            EventSubject = state.EventSubject;
         }
     }
 }

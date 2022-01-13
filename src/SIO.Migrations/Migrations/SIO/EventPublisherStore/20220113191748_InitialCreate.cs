@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace SIO.Migrations.Migrations.SIO.Store
+#nullable disable
+
+namespace SIO.Migrations.Migrations.SIO.EventPublisherStore
 {
     public partial class InitialCreate : Migration
     {

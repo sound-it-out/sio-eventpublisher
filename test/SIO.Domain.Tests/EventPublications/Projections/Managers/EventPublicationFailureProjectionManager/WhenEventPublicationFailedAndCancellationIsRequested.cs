@@ -19,6 +19,7 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
     {
         private readonly Mock<IProjectionWriter<EventPublicationFailure>> _mockProjectionWriter = new();
         private readonly Subject _subject = Subject.New();
+        private readonly Subject _eventSubject = Subject.New();
         private readonly string _error = "error";
 
         public WhenEventPublicationFailedAndCancellationIsRequested(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
@@ -35,7 +36,7 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
 
         protected override sealed IEnumerable<IEvent> Given()
         {
-            yield return new EventPublicationFailed(_error, _subject, 2);
+            yield return new EventPublicationFailed(_error, _subject, 2, _eventSubject);
         }        
 
         protected override sealed void BuildServices(IServiceCollection services)

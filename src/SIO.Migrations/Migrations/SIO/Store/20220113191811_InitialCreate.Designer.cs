@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 
@@ -11,9 +12,10 @@ using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 namespace SIO.Migrations.Migrations.SIO.Store
 {
     [DbContext(typeof(SIOStoreDbContext))]
-    partial class SIOStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220113191811_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

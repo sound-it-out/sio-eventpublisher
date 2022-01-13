@@ -3,17 +3,19 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
+using SIO.EntityFrameworkCore.DbContexts;
 
 #nullable disable
 
-namespace SIO.Migrations.Migrations.SIO.Store
+namespace SIO.Migrations.Migrations.SIO.EventPublisherStore
 {
-    [DbContext(typeof(SIOStoreDbContext))]
-    partial class SIOStoreDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SIOEventPublisherStoreDbContext))]
+    [Migration("20220113191748_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

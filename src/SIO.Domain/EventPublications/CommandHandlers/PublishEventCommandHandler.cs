@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SIO.Domain.EventPublications.Aggregates;
 using SIO.Domain.EventPublications.Commands;
+using SIO.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure;
 using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Domain;
+using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.Events;
 
 namespace SIO.Domain.EventPublications.CommandHandlers
@@ -14,14 +16,14 @@ namespace SIO.Domain.EventPublications.CommandHandlers
     internal sealed class PublishEventCommandHandler : ICommandHandler<PublishEventCommand>
     {
         private readonly ILogger<PublishEventCommandHandler> _logger;
-        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateRepository<SIOEventPublisherStoreDbContext> _aggregateRepository;
         private readonly IEventBusPublisher _eventBusPublisher;
-        private readonly IEventStore _eventStore;
+        private readonly IEventStore<SIOStoreDbContext> _eventStore;
 
         public PublishEventCommandHandler(ILogger<PublishEventCommandHandler> logger,
-            IAggregateRepository aggregateRepository,
+            IAggregateRepository<SIOEventPublisherStoreDbContext> aggregateRepository,
             IEventBusPublisher eventBusPublisher,
-            IEventStore eventStore)
+            IEventStore<SIOStoreDbContext> eventStore)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -53,13 +55,14 @@ namespace SIO.Domain.EventPublications.CommandHandlers
 
             try
             {
+                var state = aggregate.GetState();
                 // Event has been published but we are ahead of projections!
-                if (aggregate.GetState().Status == EventPublicationStatus.Succeeded)
+                if (state.Status == EventPublicationStatus.Succeeded)
                     return;
 
-                var eventContext = await _eventStore.GetEventAsync(Subject.From(aggregate.Id), cancellationToken);
+                var eventContext = await _eventStore.GetEventAsync(Subject.From(state.EventSubject), cancellationToken);
 
-                var notification = new EventNotification<IEvent>(streamId: aggregate.Id,
+                var notification = new EventNotification<IEvent>(streamId: eventContext.StreamId,
                     @event: eventContext.Payload,
                     correlationId: eventContext.CorrelationId,
                     causationId: eventContext.CausationId,

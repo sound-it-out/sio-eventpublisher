@@ -3,30 +3,32 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
+using SIO.EntityFrameworkCore.DbContexts;
 
-namespace SIO.Migrations.Migrations.SIO.Store
+#nullable disable
+
+namespace SIO.Migrations.Migrations.SIO.EventPublisherStore
 {
-    [DbContext(typeof(SIOStoreDbContext))]
-    [Migration("20211127112338_InitialCreate")]
-    partial class InitialCreate
+    [DbContext(typeof(SIOEventPublisherStoreDbContext))]
+    partial class SIOEventPublisherStoreDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.5")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("SIO.Infrastructure.EntityFrameworkCore.Entities.Command", b =>
                 {
                     b.Property<long>("SequenceNo")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SequenceNo"), 1L, 1);
 
                     b.Property<string>("CorrelationId")
                         .HasColumnType("nvarchar(450)");
@@ -71,8 +73,9 @@ namespace SIO.Migrations.Migrations.SIO.Store
                 {
                     b.Property<long>("SequenceNo")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SequenceNo"), 1L, 1);
 
                     b.Property<string>("Actor")
                         .HasColumnType("nvarchar(450)");
@@ -125,8 +128,9 @@ namespace SIO.Migrations.Migrations.SIO.Store
                 {
                     b.Property<long>("SequenceNo")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SequenceNo"), 1L, 1);
 
                     b.Property<string>("CorrelationId")
                         .HasColumnType("nvarchar(450)");

@@ -9,9 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using SIO.Domain;
 using SIO.Domain.EventPublications.Projections;
 using SIO.Domain.Extensions;
+using SIO.EntityFrameworkCore.DbContexts;
 using SIO.EntityFrameworkCore.Projections;
 using SIO.Infrastructure;
 using SIO.Infrastructure.Azure.ServiceBus.Extensions;
+using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.EntityFrameworkCore.Extensions;
 using SIO.Infrastructure.EntityFrameworkCore.Projections;
 using SIO.Infrastructure.EntityFrameworkCore.SqlServer.Extensions;
@@ -29,7 +31,8 @@ namespace SIO.EventPublisher.Extensions
             services.AddSIOInfrastructure()
                 .AddEntityFrameworkCoreSqlServer(options =>
                 {
-                    options.AddStore(configuration.GetConnectionString("Store"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
+                    options.AddStore<SIOStoreDbContext>(configuration.GetConnectionString("Store"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
+                    options.AddStore<SIOEventPublisherStoreDbContext>(configuration.GetConnectionString("EventPublisherStore"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
                     options.AddProjections(configuration.GetConnectionString("Projection"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
                 })
                 .AddEntityFrameworkCoreStoreProjector(options => options.WithDomainProjections())

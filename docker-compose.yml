@@ -7,12 +7,11 @@ services:
       context: .
       dockerfile: src/SIO.EventPublisher/Dockerfile
     depends_on: 
-      - sio.eventpublisher.sql.projections
+      - sio.eventpublisher.sql
     external_links:
       - sio.sql.store
-  sio.eventpublisher.sql.projections:
+  sio.eventpublisher.sql:
     image: "mcr.microsoft.com/mssql/server:2019-latest"
-    container_name: sio.eventpublisher.sql.projections
 networks:    
   default:
     external:

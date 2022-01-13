@@ -20,6 +20,7 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
     {
         private readonly Mock<IProjectionWriter<EventPublicationFailure>> _mockProjectionWriter = new();
         private readonly Subject _subject = Subject.New();
+        private readonly Subject _eventSubject = Subject.New();
         private readonly DateTimeOffset _publicationDate = DateTimeOffset.UtcNow;
 
         public WhenEventPublicationQueuedAndCancellationIsRequested(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
@@ -47,7 +48,7 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
 
         protected override IEnumerable<IEvent> Given()
         {
-            yield return new EventPublicationQueued(_subject, 1, _publicationDate);
+            yield return new EventPublicationQueued(_subject, 1, _publicationDate, _eventSubject);
         }
 
         [Then]

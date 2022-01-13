@@ -6,17 +6,21 @@ services:
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ConnectionStrings__Store=Server=sio.sql.store;Initial Catalog=sio-store;User Id=sa;Password=1qaz-pl,
-      - ConnectionStrings__Projection=Server=sio.eventpublisher.sql.projections;Initial Catalog=sio-api-projections;User Id=sa;Password=1qaz-pl,
+      - ConnectionStrings__EventPublisherStore=Server=sio.eventpublisher.sql;Initial Catalog=sio-eventpublisher-store;User Id=sa;Password=1qaz-pl,
+      - ConnectionStrings__Projection=Server=sio.eventpublisher.sql;Initial Catalog=sio-eventpublisher-projections;User Id=sa;Password=1qaz-pl,
       - ConnectionStrings__RabbitMq=amqp://guest:guest@sio.rabbitmq
       - RabbitMq__Exchange=sio-docker
       - RabbitMq__Subscription=sio-docker-api
       - RabbitMq__ManagementApi__Endpoint=http://localhost:15672
       - RabbitMq__ManagementApi__User=guest
       - RabbitMq__ManagementApi__Password=guest
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft=Warning
+      - Logging__LogLevel__Microsoft.Hosting.Lifetime=Information
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-  sio.eventpublisher.sql.projections:
+  sio.eventpublisher.sql:
     user: 'root'
     environment:
       SA_PASSWORD: "1qaz-pl,"
