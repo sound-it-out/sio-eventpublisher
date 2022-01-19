@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Shouldly;
 using SIO.Domain.EventPublications.Commands;
+using SIO.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure;
 using SIO.Infrastructure.Domain;
 using SIO.Infrastructure.Events;
@@ -15,9 +16,9 @@ namespace SIO.Domain.Tests.EventPublications.CommandHandlers.PublishEventCommand
 {
     public sealed class WhenCancellationIsRequested : CommandHandlerSpecification<PublishEventCommand>
     {
-        private readonly Mock<IAggregateRepository> _mockAggregateRepository = new();
+        private readonly Mock<IAggregateRepository<SIOEventPublisherStoreDbContext>> _mockAggregateRepository = new();
         private readonly Mock<IEventBusPublisher> _mockEventBusPublisher = new();
-        private readonly Mock<IEventStore> _mockEventStore = new();
+        private readonly Mock<IEventStore<SIOEventPublisherStoreDbContext>> _mockEventStore = new();
 
         public WhenCancellationIsRequested(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {

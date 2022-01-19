@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 
+#nullable disable
+
 namespace SIO.Migrations.Migrations.SIO.Projection
 {
     [DbContext(typeof(SIOProjectionDbContext))]
@@ -15,24 +17,27 @@ namespace SIO.Migrations.Migrations.SIO.Projection
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.5")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("SIO.Domain.EventPublications.Projections.EventPublicationFailure", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("Subject")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Error")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Subject")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("EventSubject")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Subject");
 
-                    b.ToTable("EventPublicationFailure");
+                    b.HasIndex("EventSubject");
+
+                    b.ToTable("EventPublicationFailure", (string)null);
                 });
 
             modelBuilder.Entity("SIO.Domain.EventPublications.Projections.EventPublicationQueue", b =>
@@ -43,12 +48,17 @@ namespace SIO.Migrations.Migrations.SIO.Projection
                     b.Property<int>("Attempts")
                         .HasColumnType("int");
 
+                    b.Property<string>("EventSubject")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTimeOffset?>("PublicationDate")
                         .HasColumnType("datetimeoffset");
 
                     b.HasKey("Subject");
 
-                    b.ToTable("EventPublicationQueue");
+                    b.HasIndex("EventSubject");
+
+                    b.ToTable("EventPublicationQueue", (string)null);
                 });
 
             modelBuilder.Entity("SIO.Infrastructure.EntityFrameworkCore.Entities.ProjectionState", b =>
@@ -67,7 +77,7 @@ namespace SIO.Migrations.Migrations.SIO.Projection
 
                     b.HasKey("Name");
 
-                    b.ToTable("ProjectionState");
+                    b.ToTable("ProjectionState", (string)null);
                 });
 #pragma warning restore 612, 618
         }

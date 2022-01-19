@@ -16,6 +16,7 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
     public sealed class WhenEventPublicationFailed : ProjectionManagerSpecification<EventPublicationQueue>
     {
         private readonly Subject _subject = Subject.New();
+        private readonly Subject _eventSubject = Subject.New();
         private readonly DateTimeOffset _publicationDate = DateTimeOffset.UtcNow;
         private readonly string _error = "error";
 
@@ -35,8 +36,8 @@ namespace SIO.Domain.Tests.EventPublications.Projections.Managers.EventPublicati
 
         protected override IEnumerable<IEvent> Given()
         {
-            yield return new EventPublicationQueued(_subject, 1, _publicationDate);
-            yield return new EventPublicationFailed(_error, _subject, 2);
+            yield return new EventPublicationQueued(_subject, 1, _publicationDate, _eventSubject);
+            yield return new EventPublicationFailed(_error, _subject, 2, _eventSubject);
         }
 
         [Then]

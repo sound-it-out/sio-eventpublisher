@@ -14,6 +14,7 @@ namespace SIO.Domain.Tests.EventPublications.Aggregates.EventPublication
     public sealed class WhenEventPublicationQueued : AggregateSpecification<SIO.Domain.EventPublications.Aggregates.EventPublication, SIO.Domain.EventPublications.Aggregates.EventPublicationState>
     {
         private readonly Subject _subject = Subject.New();
+        private readonly Subject _eventSubject = Subject.New();
         private readonly DateTimeOffset _publicationDate = DateTimeOffset.UtcNow;
         protected override IEnumerable<IEvent> Given()
         {
@@ -22,7 +23,7 @@ namespace SIO.Domain.Tests.EventPublications.Aggregates.EventPublication
 
         protected override void When()
         {
-            Aggregate.Queue(_subject, _publicationDate);
+            Aggregate.Queue(_subject, _publicationDate, _eventSubject);
         }
 
         [Then]

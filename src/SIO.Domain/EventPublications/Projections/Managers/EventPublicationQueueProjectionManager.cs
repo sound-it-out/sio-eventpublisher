@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SIO.Domain.EventPublications.Events;
+using SIO.Infrastructure;
 using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.Projections;
 
@@ -50,6 +51,7 @@ namespace SIO.Domain.EventPublications.Projections.Managers
             {
                 Attempts = 0,
                 Subject = @event.Subject,
+                EventSubject = @event.EventSubject,
                 PublicationDate = @event.PublicationDate
             }, cancellationToken)));
         }

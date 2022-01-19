@@ -13,6 +13,7 @@ using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.EntityFrameworkCore.Entities;
 using SIO.Infrastructure.Events;
+using SIO.IntegrationEvents;
 
 namespace SIO.Domain.EventPublications.Services
 {
@@ -21,7 +22,7 @@ namespace SIO.Domain.EventPublications.Services
         private Task _executingTask;
         private CancellationTokenSource StoppingCts { get; set; }
         private readonly IServiceScope _scope;
-        private readonly IEventStore _eventStore;
+        private readonly IEventStore<SIOStoreDbContext> _eventStore;
         private readonly ILogger<EventProcessor> _logger;
         private readonly IOptionsSnapshot<EventProcessorOptions> _options;
         private readonly ISIOProjectionDbContextFactory _projectionDbContextFactory;
@@ -39,13 +40,13 @@ namespace SIO.Domain.EventPublications.Services
 
             _scope = serviceScopeFactory.CreateScope();
             _logger = logger;
-            _eventStore = _scope.ServiceProvider.GetRequiredService<IEventStore>();
+            _eventStore = _scope.ServiceProvider.GetRequiredService<IEventStore<SIOStoreDbContext>>();
             _options = _scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<EventProcessorOptions>>();
             _projectionDbContextFactory = _scope.ServiceProvider.GetRequiredService<ISIOProjectionDbContextFactory>();
             _commandDispatcher = _scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
 
             _name = typeof(EventProcessor).FullName;
-            _eventsToProcess = new HashSet<string>(EventHelper.PublicationEvents.Select(t => t.FullName));
+            _eventsToProcess = new HashSet<string>(new AllEvents().Select(t => t.FullName));
         }
 
         public Task StartAsync(CancellationToken cancellationToken = default)
@@ -130,11 +131,12 @@ namespace SIO.Domain.EventPublications.Services
                         foreach (var @event in page.Events.Where(e => _eventsToProcess.Contains(e.Payload.GetType().FullName)))
                         {
                             await _commandDispatcher.DispatchAsync(new QueueEventPublicationCommand(
-                                subject: @event.Payload.Id,
+                                subject: Subject.New(),
                                 correlationId: correlationId,
                                 version: 0,
                                 Actor.Unknown,
-                                @event.ScheduledPublication
+                                @event.ScheduledPublication,
+                                @event.Payload.Id
                             ));
                         }                            
 

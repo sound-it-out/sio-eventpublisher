@@ -16,12 +16,14 @@ namespace SIO.Domain.EventPublications.Aggregates
         public override EventPublicationState GetState() => new EventPublicationState(_state);
 
         public void Queue(string subject,
-            DateTimeOffset? publicationDate)
+            DateTimeOffset? publicationDate,
+            string eventSubject)
         {
             Apply(new EventPublicationQueued(
                 subject: subject,
                 version: Version + 1,
-                publicationDate: publicationDate
+                publicationDate: publicationDate,
+                eventSubject: eventSubject
             ));
         }
 
@@ -30,7 +32,8 @@ namespace SIO.Domain.EventPublications.Aggregates
             Apply(new EventPublicationFailed(
                 error: error,
                 subject: Id,
-                version: Version + 1
+                version: Version + 1,
+                eventSubject: _state.EventSubject
             ));
         }
 
@@ -48,6 +51,7 @@ namespace SIO.Domain.EventPublications.Aggregates
             _state.PublicationDate = @event.PublicationDate;
             _state.Attempts = 0;
             _state.Status = EventPublicationStatus.Queued;
+            _state.EventSubject = @event.EventSubject;
             Version = @event.Version;
         }
 

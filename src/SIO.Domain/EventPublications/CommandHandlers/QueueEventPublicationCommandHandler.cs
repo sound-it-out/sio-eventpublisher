@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SIO.Domain.EventPublications.Aggregates;
 using SIO.Domain.EventPublications.Commands;
+using SIO.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Domain;
 using SIO.Infrastructure.Events;
@@ -16,11 +17,11 @@ namespace SIO.Domain.EventPublications.CommandHandlers
     internal sealed class QueueEventPublicationCommandHandler : ICommandHandler<QueueEventPublicationCommand>
     {
         private readonly ILogger<QueueEventPublicationCommandHandler> _logger;
-        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateRepository<SIOEventPublisherStoreDbContext> _aggregateRepository;
         private readonly IAggregateFactory _aggregateFactory;
 
         public QueueEventPublicationCommandHandler(ILogger<QueueEventPublicationCommandHandler> logger,
-            IAggregateRepository aggregateRepository,
+            IAggregateRepository<SIOEventPublisherStoreDbContext> aggregateRepository,
             IAggregateFactory aggregateFactory)
         {
             if (logger == null)
@@ -58,7 +59,8 @@ namespace SIO.Domain.EventPublications.CommandHandlers
 
             aggregate.Queue(
                 subject: command.Subject,
-                publicationDate: command.PublicationDate
+                publicationDate: command.PublicationDate,
+                eventSubject: command.EventSubject
             );
 
             await _aggregateRepository.SaveAsync(aggregate, command, cancellationToken: cancellationToken);

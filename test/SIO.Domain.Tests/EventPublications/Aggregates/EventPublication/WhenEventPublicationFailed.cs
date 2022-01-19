@@ -14,11 +14,12 @@ namespace SIO.Domain.Tests.EventPublications.Aggregates.EventPublication
     public sealed class WhenEventPublicationFailed : AggregateSpecification<SIO.Domain.EventPublications.Aggregates.EventPublication, SIO.Domain.EventPublications.Aggregates.EventPublicationState>
     {
         private readonly Subject _subject = Subject.New();
+        private readonly Subject _eventSubject = Subject.New();
         private readonly DateTimeOffset _publicationDate = DateTimeOffset.UtcNow;
         private readonly string _error = "error";
         protected override IEnumerable<IEvent> Given()
         {
-            yield return new EventPublicationQueued(_subject, 1, _publicationDate);
+            yield return new EventPublicationQueued(_subject, 1, _publicationDate, _eventSubject);
         }
 
         protected override void When()

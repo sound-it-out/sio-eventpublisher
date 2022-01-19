@@ -15,7 +15,6 @@ namespace SIO.Domain.EventPublications.Projections.Managers
     {
         private readonly IEnumerable<IProjectionWriter<EventPublicationFailure>> _projectionWriters;
         private readonly ISIOProjectionDbContextFactory _projectionDbContextFactory;
-        private readonly EventPublicationOptions _eventPublicationOptions;
 
         public EventPublicationFailureProjectionManager(ILogger<ProjectionManager<EventPublicationFailure>> logger,
             IEnumerable<IProjectionWriter<EventPublicationFailure>> projectionWriters) : base(logger)
@@ -38,9 +37,9 @@ namespace SIO.Domain.EventPublications.Projections.Managers
 
             await Task.WhenAll(_projectionWriters.Select(pw => pw.AddAsync(@event.Subject, () => new EventPublicationFailure
             {
-                Id = Subject.New(),
+                Subject = Subject.New(),
                 Error = @event.Error,
-                Subject = @event.Subject
+                EventSubject = @event.EventSubject
             }, cancellationToken)));
         }
 
