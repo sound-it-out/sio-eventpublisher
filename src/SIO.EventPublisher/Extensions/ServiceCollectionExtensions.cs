@@ -1,24 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SIO.Domain;
-using SIO.Domain.EventPublications.Projections;
 using SIO.Domain.Extensions;
 using SIO.EntityFrameworkCore.DbContexts;
-using SIO.EntityFrameworkCore.Projections;
-using SIO.Infrastructure;
-using SIO.Infrastructure.Azure.ServiceBus.Extensions;
 using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.EntityFrameworkCore.Extensions;
-using SIO.Infrastructure.EntityFrameworkCore.Projections;
 using SIO.Infrastructure.EntityFrameworkCore.SqlServer.Extensions;
 using SIO.Infrastructure.Extensions;
-using SIO.Infrastructure.Projections;
 using SIO.Infrastructure.Serialization.Json.Extensions;
 using SIO.Infrastructure.Serialization.MessagePack.Extensions;
 
