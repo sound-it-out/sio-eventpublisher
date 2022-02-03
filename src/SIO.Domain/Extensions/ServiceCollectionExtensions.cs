@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SIO.Domain.EventPublications;
 using SIO.Domain.EventPublications.CommandHandlers;
@@ -14,15 +15,14 @@ namespace SIO.Domain.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddDomain(this IServiceCollection services)
+        public static IServiceCollection AddDomain(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ICommandHandler<QueueEventPublicationCommand>, QueueEventPublicationCommandHandler>();
             services.AddScoped<ICommandHandler<PublishEventCommand>, PublishEventCommandHandler>();
             services.AddHostedService<EventProcessor>();
             services.AddHostedService<EventPublisher>();
-            services.Configure<EventProcessorOptions>(o => o.Interval = 300);
-            services.Configure<EventPublisherOptions>(o => o.Interval = 300);
-            services.Configure<EventPublicationOptions>(o => o.MaxRetries = 5);
+            services.Configure<EventProcessorOptions>(configuration.GetSection("EventProcessor"));
+            services.Configure<EventPublisherOptions>(configuration.GetSection("EventPublisher"));
             return services;
         }
     }

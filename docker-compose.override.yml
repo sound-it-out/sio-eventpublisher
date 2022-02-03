@@ -17,6 +17,11 @@ services:
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft=Warning
       - Logging__LogLevel__Microsoft.Hosting.Lifetime=Information
+      - EventProcessor__Interval=50
+      - EventPublisher__Interval=50
+      - EventPublisher__MaxRetries=5
+      - EventPublicationFailure__Interval=5000
+      - EventPublicationQueue__Interval=50
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

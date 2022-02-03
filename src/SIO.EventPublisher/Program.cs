@@ -11,7 +11,7 @@ var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
         services.AddInfrastructure(hostContext.Configuration)
-            .AddDomain();
+            .AddDomain(hostContext.Configuration);
     })
     .Build();
 

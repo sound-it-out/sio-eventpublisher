@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SIO.Domain.EventPublications.Events;
-using SIO.Infrastructure;
+using SIO.Domain.EventPublications.Services;
 using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.Projections;
 
@@ -16,23 +16,23 @@ namespace SIO.Domain.EventPublications.Projections.Managers
     {
         private readonly IEnumerable<IProjectionWriter<EventPublicationQueue>> _projectionWriters;
         private readonly ISIOProjectionDbContextFactory _projectionDbContextFactory;
-        private readonly EventPublicationOptions _eventPublicationOptions;
+        private readonly IOptionsMonitor<EventPublisherOptions> _options;
 
         public EventPublicationQueueProjectionManager(ILogger<ProjectionManager<EventPublicationQueue>> logger,
             IEnumerable<IProjectionWriter<EventPublicationQueue>> projectionWriters,
             ISIOProjectionDbContextFactory projectionDbContextFactory,
-            IOptionsSnapshot<EventPublicationOptions> optionsSnapshot) : base(logger)
+            IOptionsMonitor<EventPublisherOptions> options) : base(logger)
         {
             if (projectionWriters == null)
                 throw new ArgumentNullException(nameof(projectionWriters));
             if (projectionDbContextFactory == null)
                 throw new ArgumentNullException(nameof(projectionDbContextFactory));
-            if (optionsSnapshot == null)
-                throw new ArgumentNullException(nameof(optionsSnapshot));
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
 
             _projectionWriters = projectionWriters;
             _projectionDbContextFactory = projectionDbContextFactory;
-            _eventPublicationOptions = optionsSnapshot.Value;
+            _options = options;
 
             Handle<EventPublicationQueued>(HandleAsync);
             Handle<EventPublicationFailed>(HandleAsync);
@@ -67,7 +67,7 @@ namespace SIO.Domain.EventPublications.Projections.Managers
             using (var context = _projectionDbContextFactory.Create())
             {
                 var eventPublication = await context.Set<EventPublicationQueue>().FindAsync(@event.Subject);
-                if (eventPublication.Attempts == _eventPublicationOptions.MaxRetries)
+                if (eventPublication.Attempts == _options.CurrentValue.MaxRetries)
                 {
                     await Task.WhenAll(_projectionWriters.Select(pw => pw.RemoveAsync(@event.Subject)));
                 }
